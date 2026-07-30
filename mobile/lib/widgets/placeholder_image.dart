@@ -1,5 +1,38 @@
 import 'package:flutter/material.dart';
 
+/// Returns an [Image] widget from either a local asset path or a network URL.
+/// Falls back to [buildPlaceholderImage] on error or empty [imageUrl].
+Widget placeImage(
+  String imageUrl,
+  String category, {
+  double? width,
+  double? height,
+  BoxFit fit = BoxFit.cover,
+}) {
+  if (imageUrl.isEmpty) {
+    return buildPlaceholderImage(category, width: width ?? 56, height: height ?? 56);
+  }
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return Image.network(
+      imageUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      errorBuilder: (_, __, ___) =>
+          buildPlaceholderImage(category, width: width ?? 56, height: height ?? 56),
+    );
+  }
+  // Local asset
+  return Image.asset(
+    imageUrl,
+    width: width,
+    height: height,
+    fit: fit,
+    errorBuilder: (_, __, ___) =>
+        buildPlaceholderImage(category, width: width ?? 56, height: height ?? 56),
+  );
+}
+
 Widget buildPlaceholderImage(String category,
     {double width = 56, double height = 56}) {
   Color bg;

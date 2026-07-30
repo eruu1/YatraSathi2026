@@ -25,7 +25,9 @@ class PlanScreen extends StatefulWidget {
 class _PlanScreenState extends State<PlanScreen> {
   String _from = 'Kathmandu', _to = 'Pokhara';
   DateTimeRange? _dateRange;
-  int _travelers = 2;
+  int _adults = 2;
+  int _children = 0;
+  int get _travelers => _adults + _children;
   String _travelTime = 'Morning';
   double _stayBudget = 4500;
   double _foodBudget = 1200;
@@ -568,6 +570,8 @@ class _PlanScreenState extends State<PlanScreen> {
         'from': _from,
         'to': _to,
         'days': days,
+        'adults': _adults,
+        'children': _children,
         'travelers': _travelers,
         'pace': _pace,
         'interests': _interests.toList(),
@@ -592,6 +596,8 @@ class _PlanScreenState extends State<PlanScreen> {
           'origin': _from,
           'destination': _to,
           'duration_days': _dateRange?.duration.inDays ?? 0,
+          'adults': _adults,
+          'children': _children,
           'travelers': _travelers,
           'travel_time': _travelTime,
           'stay_budget': _stayBudget,
@@ -608,9 +614,6 @@ class _PlanScreenState extends State<PlanScreen> {
           'days': _dateRange?.duration.inDays ?? 0,
           'itinerary': _generatedItinerary,
         } : null,
-        onNavigate: () {
-          // Handle navigation if AI suggests moving to a different screen
-        },
       ),
     );
   }
@@ -913,50 +916,147 @@ class _PlanScreenState extends State<PlanScreen> {
                 Expanded(
                     child: _formCard(
                   label: 'TRAVELERS',
-                  child:
-                      Row(children: [
-                    GestureDetector(
-                      onTap: () => setState(() =>
-                          _travelers =
-                              (_travelers - 1)
-                                  .clamp(1, 20)),
-                      child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: kBorder)),
-                          child: const Icon(
-                              Icons.remove,
-                              size: 14)),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                        '$_travelers ${_travelers == 1 ? 'adult' : 'adults'}',
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$_adults ${_adults == 1 ? 'adult' : 'adults'}' 
+                        '${_children > 0 ? ' · $_children ${_children == 1 ? 'child' : 'children'}' : ''}',
                         style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight:
                                 FontWeight.w600,
-                            color: kDark)),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () => setState(
-                          () => _travelers++),
-                      child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration:
-                              const BoxDecoration(
-                                  shape:
-                                      BoxShape.circle,
-                                  color: kDark),
-                          child: const Icon(
-                              Icons.add,
-                              size: 14,
-                              color: Colors.white)),
-                    ),
-                  ]),
+                            color: kDark),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text('Adults',
+                                  style:
+                                      GoogleFonts.inter(
+                                          fontSize: 12,
+                                          color:
+                                              kGray)),
+                              const SizedBox(height: 8),
+                              Row(children: [
+                                GestureDetector(
+                                  onTap: () => setState(() =>
+                                      _adults =
+                                          (_adults - 1)
+                                              .clamp(1, 20)),
+                                  child: Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                              color:
+                                                  kBorder)),
+                                      child: const Icon(
+                                          Icons.remove,
+                                          size: 14)),
+                                ),
+                                const SizedBox(width: 8),
+                                Text('$_adults',
+                                    style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight:
+                                            FontWeight.w600,
+                                        color: kDark)),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () => setState(
+                                      () => _adults =
+                                          (_adults + 1)
+                                              .clamp(1, 20)),
+                                  child: Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration:
+                                          const BoxDecoration(
+                                              shape:
+                                                  BoxShape.circle,
+                                              color: kDark),
+                                      child: const Icon(
+                                          Icons.add,
+                                          size: 14,
+                                          color:
+                                              Colors.white)),
+                                ),
+                              ]),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text('Children',
+                                  style:
+                                      GoogleFonts.inter(
+                                          fontSize: 12,
+                                          color:
+                                              kGray)),
+                              const SizedBox(height: 8),
+                              Row(children: [
+                                GestureDetector(
+                                  onTap: () => setState(() =>
+                                      _children =
+                                          (_children - 1)
+                                              .clamp(0, 20)),
+                                  child: Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                              color:
+                                                  kBorder)),
+                                      child: const Icon(
+                                          Icons.remove,
+                                          size: 14)),
+                                ),
+                                const SizedBox(width: 8),
+                                Text('$_children',
+                                    style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight:
+                                            FontWeight.w600,
+                                        color: kDark)),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () => setState(
+                                      () => _children =
+                                          (_children + 1)
+                                              .clamp(0, 20)),
+                                  child: Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration:
+                                          const BoxDecoration(
+                                              shape:
+                                                  BoxShape.circle,
+                                              color: kDark),
+                                      child: const Icon(
+                                          Icons.add,
+                                          size: 14,
+                                          color:
+                                              Colors.white)),
+                                ),
+                              ]),
+                            ],
+                          ),
+                        ),
+                      ]),
+                    ],
+                  ),
                 )),
               ]),
               const SizedBox(height: 20),

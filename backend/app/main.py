@@ -13,6 +13,9 @@ from backend.app.api import (
     recommend_router,
     ai_router,
     workspace_router,
+    saved_places_router,
+    itineraries_router,
+    auth_router,
 )
 from backend.app.services.place_service import place_service
 
@@ -56,11 +59,14 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth_router)
 app.include_router(places_router)
 app.include_router(route_router)
 app.include_router(recommend_router)
 app.include_router(ai_router)
 app.include_router(workspace_router)
+app.include_router(saved_places_router)
+app.include_router(itineraries_router)
 
 
 @app.get("/")

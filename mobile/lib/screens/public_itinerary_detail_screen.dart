@@ -6,6 +6,8 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/models/created_itinerary.dart';
 import 'package:mobile/services/user_session.dart';
 import 'package:mobile/screens/place_detail_screen.dart';
+import 'package:mobile/screens/itinerary_edit_screen.dart';
+import 'package:mobile/services/user_storage.dart';
 import 'package:mobile/widgets/day_section.dart';
 import 'package:mobile/models/place.dart';
 
@@ -323,7 +325,7 @@ class _PublicItineraryDetailScreenState
                   icon: const Icon(Icons.copy),
                   label: const Text(
                       'Clone & Customize'),
-                  onPressed: () {
+                  onPressed: () async {
                     // Clone to saved itineraries
                     final clone = CreatedItinerary(
                       id: DateTime.now()
@@ -354,13 +356,21 @@ class _PublicItineraryDetailScreenState
                       durationMinutes: widget
                           .itinerary.durationMinutes,
                     );
-                    UserSession.savedItineraries
-                        .add(clone);
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(
+                    UserSession.savedItineraries.add(clone);
+                    await UserStorage.saveSavedItineraries(UserSession.savedItineraries);
+                    if (!mounted) return;
+                    // ignore: use_build_context_synchronously
+                    ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                           content: Text(
-                              'Cloned to your Saved Roadtrips! You can now edit it.')),
+                              'Cloned to your Saved Roadtrips! Opening editor...')),
+                    );
+                    // ignore: use_build_context_synchronously
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ItineraryEditScreen(itinerary: clone),
+                      ),
                     );
                   },
                 ),

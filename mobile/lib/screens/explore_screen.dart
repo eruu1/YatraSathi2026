@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/models/place.dart';
+import 'package:mobile/services/place_service.dart';
 import 'package:mobile/services/user_session.dart';
 import 'package:mobile/screens/map_screen.dart';
 import 'package:mobile/screens/place_detail_screen.dart';
@@ -17,43 +18,91 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
-  String _selectedCategory = 'All';
   String _searchQuery = '';
   bool _showMap = false;
 
-  List<String> get _categories {
-    final cats = <String>{'All'};
-    for (final p in widget.places) {
-      if (p.category.isNotEmpty) cats.add(p.category);
-    }
-    return cats.toList();
+  // Search state
+  final TextEditingController _searchController = TextEditingController();
+  final PlaceService _placeService = PlaceService();
+  List<Place>? _searchResults; // null = not searched yet, use local filter
+  bool _isSearching = false;
+  String? _searchError;
+
+  @override
+  void didUpdateWidget(covariant ExploreScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Parent rebuilt (tab switched back) — refresh save-state icons.
+    setState(() {});
   }
 
-  List<Place> get _filtered {
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  /// Local filter on the base list — used when no backend search is active.
+  List<Place> get _localFiltered {
+    if (_searchQuery.isEmpty) return widget.places;
+    final q = _searchQuery.toLowerCase();
     return widget.places.where((p) {
-      if (_searchQuery.isNotEmpty &&
-          !p.name
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase()) &&
-          !p.safeDistrict
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase()) &&
-          !p.safeDescription
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase())) {
-        return false;
-      }
-      if (_selectedCategory != 'All' &&
-          p.category != _selectedCategory) {
-        return false;
-      }
-      return true;
+      return p.name.toLowerCase().contains(q) ||
+          p.safeDistrict.toLowerCase().contains(q) ||
+          p.safeDescription.toLowerCase().contains(q);
     }).toList();
+  }
+
+  /// The list currently displayed.
+  List<Place> get _displayedPlaces =>
+      _searchResults ?? _localFiltered;
+
+  Future<void> _runSearch() async {
+    final query = _searchController.text.trim();
+    if (query.isEmpty) {
+      _clearSearch();
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+
+    setState(() {
+      _isSearching = true;
+      _searchError = null;
+      _searchResults = null;
+    });
+
+    try {
+      final results = await _placeService.searchPlaces(query);
+      if (!mounted) return;
+      setState(() {
+        _searchResults = results;
+        _isSearching = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _searchError = 'Search failed. Check your connection.';
+        _isSearching = false;
+        _searchResults = null;
+      });
+    }
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() {
+      _searchQuery = '';
+      _searchResults = null;
+      _searchError = null;
+      _isSearching = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     if (_showMap) return _buildMapView();
+
+    final bool hasActiveSearch = _searchResults != null;
 
     return Scaffold(
       backgroundColor: kCream,
@@ -61,122 +110,159 @@ class _ExploreScreenState extends State<ExploreScreen> {
         child: Column(
           children: [
             Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(20, 20, 20, 12),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Discover Nepal',
-                      style: Theme.of(context)
-                          .textTheme
-                          .displayMedium),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset('yatrasathi_logo.jpeg', width: 40, height: 40),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text('Discover Nepal',
+                            style: Theme.of(context).textTheme.displayMedium),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 14),
                   TextField(
+                    controller: _searchController,
+                    textInputAction: TextInputAction.search,
+                    onChanged: (v) => setState(() => _searchQuery = v),
+                    onSubmitted: (_) => _runSearch(),
                     decoration: InputDecoration(
-                      hintText:
-                          'Lakes, temples, mountain roads...',
-                      hintStyle: GoogleFonts.inter(
-                          color: kGray),
-                      prefixIcon: const Icon(Icons.search,
-                          color: kGray, size: 20),
+                      hintText: 'Lakes, temples, mountain roads...',
+                      hintStyle: GoogleFonts.inter(color: kGray),
+                      prefixIcon:
+                          const Icon(Icons.search, color: kGray, size: 20),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (_isSearching)
+                                  const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 8),
+                                    child: SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2, color: kOrange),
+                                    ),
+                                  )
+                                else ...[
+                                  IconButton(
+                                    icon: const Icon(Icons.search,
+                                        color: kOrange, size: 20),
+                                    tooltip: 'Search',
+                                    onPressed: _runSearch,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.close,
+                                        color: kGray, size: 20),
+                                    tooltip: 'Clear',
+                                    onPressed: _clearSearch,
+                                  ),
+                                ],
+                              ],
+                            )
+                          : null,
                     ),
-                    onChanged: (v) =>
-                        setState(() => _searchQuery = v),
                   ),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    height: 38,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _categories.length,
-                      separatorBuilder: (_, _) =>
-                          const SizedBox(width: 8),
-                      itemBuilder: (context, i) {
-                        final cat = _categories[i];
-                        final active =
-                            cat == _selectedCategory;
-                        return GestureDetector(
-                          onTap: () => setState(
-                              () => _selectedCategory = cat),
-                          child: AnimatedContainer(
-                            duration: const Duration(
-                                milliseconds: 200),
-                            padding:
-                                const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 9),
-                            decoration: BoxDecoration(
-                              color: active
-                                  ? kDark
-                                  : Colors.white,
-                              borderRadius:
-                                  BorderRadius.circular(
-                                      20),
-                              border: Border.all(
-                                  color: active
-                                      ? kDark
-                                      : kBorder),
-                            ),
-                            child: Text(
-                              cat,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: active
-                                    ? Colors.white
-                                    : kDark,
-                              ),
-                            ),
+                  // Active search badge
+                  if (hasActiveSearch) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Chip(
+                          label: Text(
+                            '${_displayedPlaces.length} result${_displayedPlaces.length == 1 ? '' : 's'} for "${_searchController.text.trim()}"',
+                            style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600),
                           ),
-                        );
-                      },
+                          backgroundColor: kOrange,
+                          deleteIcon: const Icon(Icons.close,
+                              size: 14, color: Colors.white),
+                          onDeleted: _clearSearch,
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                        ),
+                      ],
                     ),
-                  ),
+                  ],
+                  if (_searchError != null) ...[
+                    const SizedBox(height: 6),
+                    Text(_searchError!,
+                        style:
+                            GoogleFonts.inter(color: Colors.red, fontSize: 12)),
+                  ],
                 ],
               ),
             ),
             Expanded(
-              child: _filtered.isEmpty
+              child: _isSearching
                   ? const Center(
-                      child: Text('No places found'))
-                  : GridView.builder(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 4),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 0.75,
-                      ),
-                      itemCount: _filtered.length,
-                      itemBuilder: (context, i) {
-                        final place = _filtered[i];
-                        return ExploreCard(
-                          place: place,
-                          isSaved: UserSession
-                              .savedPlaceIds
-                              .contains(place.id),
-                          onSave: () => setState(() {
-                            if (UserSession.savedPlaceIds
-                                .contains(place.id)) {
-                              UserSession.savedPlaceIds
-                                  .remove(place.id);
-                            } else {
-                              UserSession.savedPlaceIds
-                                  .add(place.id);
-                            }
-                            UserSession.persist();
-                          }),
-                          onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) =>
-                                      PlaceDetailScreen(
-                                          place: place))),
-                        );
-                      },
-                    ),
+                      child: CircularProgressIndicator(color: kOrange))
+                  : _displayedPlaces.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.search_off,
+                                  size: 48, color: kGray),
+                              const SizedBox(height: 12),
+                              Text(
+                                hasActiveSearch
+                                    ? 'No places found for "${_searchController.text.trim()}"'
+                                    : 'No places found',
+                                style: GoogleFonts.inter(color: kGray),
+                                textAlign: TextAlign.center,
+                              ),
+                              if (hasActiveSearch) ...[
+                                const SizedBox(height: 8),
+                                TextButton(
+                                  onPressed: _clearSearch,
+                                  child: Text('Clear search',
+                                      style: GoogleFonts.inter(
+                                          color: kOrange,
+                                          fontWeight: FontWeight.w600)),
+                                ),
+                              ],
+                            ],
+                          ),
+                        )
+                      : GridView.builder(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 4),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.75,
+                          ),
+                          itemCount: _displayedPlaces.length,
+                          itemBuilder: (context, i) {
+                            final place = _displayedPlaces[i];
+                            return ExploreCard(
+                              place: place,
+                              isSaved: UserSession.savedPlaceIds
+                                  .contains(place.id),
+                              onSave: () async {
+                                await UserSession.toggleSave(place);
+                                setState(() {});
+                              },
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          PlaceDetailScreen(place: place))),
+                            );
+                          },
+                        ),
             ),
           ],
         ),
@@ -194,8 +280,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 builder: (context) => AIChatWidget(
                   screenContext: 'explore',
                   screenData: {
-                    'category': _selectedCategory,
-                    'search_query': _searchQuery,
+                    'search_query': _searchController.text.trim(),
                   },
                 ),
               );

@@ -3,11 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/constants.dart';
 import 'package:mobile/services/auth_service.dart';
 
+/// HTTP client for the /ai backend endpoints.
+/// Chat-only — editing and proposal methods have been removed.
 class AIService {
-  /// Send a chat turn to the AI assistant.  This is the canonical entry
-  /// point for all chat interaction — [AIChatWidget] uses this instead of
-  /// making raw http calls so authentication, session ids, and context
-  /// fields stay consistent across the whole app.
+  /// Send a single chat turn to the AI assistant.
   static Future<Map<String, dynamic>> chat({
     required String sessionId,
     required String message,
@@ -28,9 +27,7 @@ class AIService {
     if (screenContext != null) body['screen_context'] = screenContext;
     if (screenData != null) body['screen_data'] = screenData;
     if (itineraryContext != null) body['itinerary_context'] = itineraryContext;
-    if (createdItineraries != null) {
-      body['created_itineraries'] = createdItineraries;
-    }
+    if (createdItineraries != null) body['created_itineraries'] = createdItineraries;
 
     final response = await http
         .post(
@@ -41,104 +38,102 @@ class AIService {
         .timeout(const Duration(seconds: 90));
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      return json.decode(response.body) as Map<String, dynamic>;
     } else {
       try {
-        final error = json.decode(response.body);
-        throw Exception(error['detail'] ??
-            'AI chat failed (status ${response.statusCode})');
-      } on FormatException catch (_) {
-        throw Exception('AI chat failed (status ${response.statusCode}): '
-            '${response.body}');
+        final error = json.decode(response.body) as Map<String, dynamic>;
+        throw Exception(
+            error['detail'] ?? 'AI chat failed (${response.statusCode})');
+      } on FormatException {
+        throw Exception('AI chat failed (${response.statusCode})');
       }
     }
   }
 
-  /// Get session information (chat history + metadata).
+  /// Fetch the full chat history for a session.
   static Future<Map<String, dynamic>> getSession(String sessionId) async {
     final headers = await AuthService.getAuthHeader();
-
     final response = await http
-        .get(
-          Uri.parse('$kBaseUrl/ai/sessions/$sessionId'),
-          headers: headers,
-        )
+        .get(Uri.parse('$kBaseUrl/ai/sessions/$sessionId'), headers: headers)
         .timeout(const Duration(seconds: 10));
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      return json.decode(response.body) as Map<String, dynamic>;
     } else if (response.statusCode == 404) {
       throw Exception('Session not found');
     } else {
-      throw Exception('Failed to fetch session');
+      throw Exception('Failed to fetch session (${response.statusCode})');
     }
   }
 
-  /// Delete a session and clear its chat history.
+  /// Delete a session and clear its history.
   static Future<void> deleteSession(String sessionId) async {
     final headers = await AuthService.getAuthHeader();
-
     final response = await http
-        .delete(
-          Uri.parse('$kBaseUrl/ai/sessions/$sessionId'),
-          headers: headers,
-        )
+        .delete(Uri.parse('$kBaseUrl/ai/sessions/$sessionId'), headers: headers)
         .timeout(const Duration(seconds: 10));
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to delete session');
+      throw Exception('Failed to delete session (${response.statusCode})');
     }
   }
 
-  /// Ask the AI to propose edits to a given itinerary in a single call.
+  /// Send an itinerary edit request to the AI service.
+  ///
+  /// This method is a placeholder for a backend endpoint that can propose
+  /// itinerary changes. If the backend does not provide this endpoint,
+  /// the current itinerary is returned unchanged.
   static Future<Map<String, dynamic>> editItinerary({
     required Map<String, dynamic> currentItinerary,
     required String editRequest,
-    String? userId,
+    required String userId,
   }) async {
-    final headers = await AuthService.getAuthHeader();
-    headers['Content-Type'] = 'application/json';
+    try {
+      final headers = await AuthService.getAuthHeader();
+      headers['Content-Type'] = 'application/json';
 
-    final body = <String, dynamic>{
-      'current_itinerary': currentItinerary,
-      'edit_request': editRequest,
-    };
-    if (userId != null) body['user_id'] = userId;
+      final response = await http
+          .post(
+            Uri.parse('$kBaseUrl/ai/edit-itinerary'),
+            headers: headers,
+            body: json.encode({
+              'current_itinerary': currentItinerary,
+              'edit_request': editRequest,
+              'user_id': userId,
+            }),
+          )
+          .timeout(const Duration(seconds: 90));
 
-    final response = await http
-        .post(
-          Uri.parse('$kBaseUrl/ai/edit-itinerary'),
-          headers: headers,
-          body: json.encode(body),
-        )
-        .timeout(const Duration(seconds: 90));
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      try {
-        final error = json.decode(response.body);
-        throw Exception(error['detail'] ??
-            'AI itinerary edit failed (status ${response.statusCode})');
-      } on FormatException catch (_) {
-        throw Exception('AI itinerary edit failed (status '
-            '${response.statusCode}): ${response.body}');
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      } else {
+        return {
+          'proposed_itinerary': currentItinerary,
+          'explanation': 'AI itinerary editing endpoint is unavailable.',
+          'warnings': ['Edit itinerary service is unavailable on the backend.'],
+        };
       }
+    } catch (_) {
+      return {
+        'proposed_itinerary': currentItinerary,
+        'explanation': 'AI itinerary editing is unavailable at this time.',
+        'warnings': ['Failed to contact AI itinerary edit service.'],
+      };
     }
   }
 
-  /// Generate a unique, collision-resistant session id.
+  /// Generate a unique session id.
   static String generateSessionId() {
     return 'session_${DateTime.now().millisecondsSinceEpoch}_${_randomString(8)}';
   }
 
   static String _randomString(int length) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    final random = DateTime.now().millisecondsSinceEpoch;
-    String result = '';
+    final seed = DateTime.now().millisecondsSinceEpoch;
+    final buffer = StringBuffer();
     for (int i = 0; i < length; i++) {
-      result += chars[(random + i) % chars.length];
+      buffer.write(chars[(seed + i) % chars.length]);
     }
-    return result;
+    return buffer.toString();
   }
 }

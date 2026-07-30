@@ -32,18 +32,8 @@ class PlaceDetailScreen extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
-              background: place.imageUrl.isNotEmpty
-                  ? Image.network(place.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (c, e, s) =>
-                          buildPlaceholderImage(
-                              place.category,
-                              width: 400,
-                              height: 280))
-                  : buildPlaceholderImage(
-                      place.category,
-                      width: 400,
-                      height: 280),
+              background: placeImage(place.imageUrl, place.category,
+                  width: 400, height: 280, fit: BoxFit.cover),
             ),
           ),
           SliverToBoxAdapter(

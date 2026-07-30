@@ -51,6 +51,8 @@ class _RootShellState extends State<RootShell> {
     }
   }
 
+  /// Switch tab and always call setState so the SavedScreen (and any other
+  /// tab that reads UserSession) rebuilds with the latest saved-places list.
   void _switchTab(int index) => setState(() => _index = index);
 
   @override

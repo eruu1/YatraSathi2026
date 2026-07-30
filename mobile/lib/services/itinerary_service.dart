@@ -57,18 +57,22 @@ class ItineraryService {
 
   // Get user's itineraries
   static Future<List<Map<String, dynamic>>> getMyItineraries() async {
-    final headers = await AuthService.getAuthHeader();
+    // Prefer username-based lookup to avoid requiring active auth on the
+    // client-side; `AuthService` stores the logged-in user locally.
+    final user = await AuthService.getUser();
+    if (user == null || user['username'] == null) return [];
+    final username = user['username'] as String;
 
-    final response = await http.get(
-      Uri.parse('$kBaseUrl/itineraries'),
-      headers: headers,
-    ).timeout(const Duration(seconds: 10));
+    final uri = Uri.parse('$kBaseUrl/itineraries/user')
+        .replace(queryParameters: {'username': username});
+
+    final response = await http.get(uri).timeout(const Duration(seconds: 10));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       return List<Map<String, dynamic>>.from(data['itineraries']);
     } else {
-      throw Exception('Failed to fetch itineraries');
+      return [];
     }
   }
 

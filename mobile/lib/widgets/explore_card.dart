@@ -39,15 +39,25 @@ class ExploreCard extends StatelessWidget {
                         topLeft: Radius.circular(15),
                         topRight: Radius.circular(15)),
                     child: place.imageUrl.isNotEmpty
-                        ? Image.network(place.imageUrl,
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) =>
-                                buildPlaceholderImage(
-                                    place.category,
-                                    width: 200,
-                                    height: 200))
+                        ? (place.imageUrl.startsWith('http')
+                            ? Image.network(place.imageUrl,
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (c, e, s) =>
+                                    buildPlaceholderImage(
+                                        place.category,
+                                        width: 200,
+                                        height: 200))
+                            : Image.asset(place.imageUrl,
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (c, e, s) =>
+                                    buildPlaceholderImage(
+                                        place.category,
+                                        width: 200,
+                                        height: 200)))
                         : buildPlaceholderImage(place.category,
                             width: 200, height: 200),
                   ),
@@ -96,6 +106,31 @@ class ExploreCard extends StatelessWidget {
                           fontSize: 11, color: kGray),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: onSave,
+                      icon: Icon(
+                        isSaved ? Icons.check : Icons.favorite_border,
+                        size: 16,
+                        color: isSaved ? kOrange : kGray,
+                      ),
+                      label: Text(
+                        isSaved ? 'Saved' : 'Save place',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isSaved ? kOrange : kGray,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: isSaved ? kOrange : kGray),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

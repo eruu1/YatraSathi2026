@@ -112,6 +112,34 @@ class Place(Base):
                 lat = (self.bbox_min_lat + self.bbox_max_lat) / 2
                 lng = (self.bbox_min_lon + self.bbox_max_lon) / 2
         
+        raw = self.raw_tags or {}
+
+        # Derive human-readable district / city / province from raw_tags
+        district = (
+            raw.get("addr:district") or
+            raw.get("addr:city") or
+            raw.get("is_in") or
+            ""
+        )
+        city = raw.get("addr:city") or raw.get("addr:place") or ""
+        province = raw.get("addr:province") or raw.get("addr:state") or ""
+
+        # Description: prefer curated wikidata_description, then OSM description
+        description = (
+            raw.get("wikidata_description") or
+            raw.get("description") or
+            raw.get("tourism") or
+            ""
+        )
+
+        # Elevation (metres) — common for mountains / viewpoints
+        elevation = raw.get("ele") or raw.get("elevation") or None
+        if elevation:
+            try:
+                elevation = float(str(elevation).split(";")[0].strip())
+            except (ValueError, TypeError):
+                elevation = None
+
         return {
             "id": str(self.id),
             "osm_id": self.osm_id,
@@ -121,10 +149,18 @@ class Place(Base):
             "group": self.group,
             "latitude": lat,
             "longitude": lng,
+            # Derived convenience fields
+            "district": district,
+            "city": city,
+            "province": province,
+            "description": description,
+            "elevation": elevation,
+            # External links
             "wikidata_id": self.wikidata_id,
             "wikipedia_url": self.wikipedia_url,
             "website": self.website,
-            "raw_tags": self.raw_tags or {},
+            # Rich metadata
+            "raw_tags": raw,
             "semantic_tags": self.semantic_tags or [],
             "travel_styles": self.travel_styles or [],
             "difficulty": self.difficulty,

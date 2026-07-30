@@ -34,14 +34,8 @@ class TrendingListTile extends StatelessWidget {
           tileColor: kCardBg,
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: place.imageUrl.isNotEmpty
-                ? Image.network(place.imageUrl,
-                    width: 56,
-                    height: 56,
-                    fit: BoxFit.cover,
-                    errorBuilder: (c, e, s) =>
-                        buildPlaceholderImage(place.category))
-                : buildPlaceholderImage(place.category),
+            child: placeImage(place.imageUrl, place.category,
+                    width: 56, height: 56),
           ),
           title: Text(place.name,
               style: GoogleFonts.inter(

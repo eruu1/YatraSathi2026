@@ -54,6 +54,18 @@ def _ensure_pgvector_extension() -> None:
         print(f"[db] Could not create pgvector extension (non-fatal): {e}")
 
 
+def _create_tables_individually() -> None:
+    """
+    Fall-back: attempt to CREATE each table independently so that a failure
+    on one (e.g. embeddings needing pgvector) does not block the rest.
+    """
+    for table in Base.metadata.sorted_tables:
+        try:
+            table.create(bind=engine, checkfirst=True)
+        except Exception as e:
+            print(f"[db] Could not create table '{table.name}' (non-fatal): {e}")
+
+
 def init_db() -> None:
     """
     Initialize database tables.
@@ -70,8 +82,16 @@ def init_db() -> None:
         place,
         embedding,
         workspace,
+        saved_place,
     )
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"[db] Table creation warning (non-fatal): {e}")
+        # create_all may fail on the embeddings (vector) table if pgvector is
+        # not installed.  Create the remaining tables individually so that
+        # tables like saved_places are never skipped.
+        _create_tables_individually()
 
 
 # Aliases for ETL compatibility

@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:mobile/assets_map.dart';
+
 class Place {
   final String id, name, category;
   final String group;
@@ -78,7 +81,7 @@ class Place {
 
     // Debug logging for coordinate parsing
     if (latDouble == 0.0 || lngDouble == 0.0) {
-      print('Warning: Place "$name" has invalid coordinates: ($latDouble, $lngDouble)');
+      debugPrint('Warning: Place "$name" has invalid coordinates: ($latDouble, $lngDouble)');
     }
     
     return Place(
@@ -123,8 +126,50 @@ class Place {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'category': category,
+      'group': group,
+      'wikidata_id': wikidataId,
+      'wikipedia_url': wikipediaUrl,
+      'website': website,
+      'latitude': latitude,
+      'longitude': longitude,
+      'raw_tags': rawTags,
+      'semantic_tags': semanticTags,
+      'travel_styles': travelStyles,
+      'best_seasons': bestSeasons,
+      'landscape': landscape,
+      'difficulty': difficulty,
+      'visit_duration': visitDuration,
+      'family_friendly': familyFriendly,
+      'accessibility': accessibility,
+      'popularity': popularity,
+      'rating': rating,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+      'district': district,
+      'province': province,
+      'city': city,
+      'description': description,
+      'history': history,
+      'images': images,
+      'has_ticket': hasTicket,
+      'tags': tags,
+      'seasons': seasons,
+    };
+  }
+
   // Safe getters with default values for backward compatibility
-  String get imageUrl => (images != null && images!.isNotEmpty) ? images!.first : '';
+
+  /// Returns the first image URL/path for this place.
+  /// Priority: 1) images list from JSON/DB, 2) assetsMap lookup by name.
+  String get imageUrl {
+    if (images != null && images!.isNotEmpty) return images!.first;
+    return assetImageFor(name) ?? '';
+  }
   double get safeRating => rating ?? 4.0;
   double get safeLatitude => latitude ?? 0.0;
   double get safeLongitude => longitude ?? 0.0;

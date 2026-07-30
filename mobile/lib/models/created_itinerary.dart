@@ -39,4 +39,28 @@ class CreatedItinerary {
     required this.distanceKm,
     required this.durationMinutes,
   });
+
+  factory CreatedItinerary.fromMap(Map<String, dynamic> m) {
+    // Provide sensible defaults for fields that may be missing from a
+    // lightweight backend response used for profile counts.
+    return CreatedItinerary(
+      id: m['id']?.toString() ?? '',
+      title: m['title'] ?? (m['name'] ?? 'Untitled Trip'),
+      from: m['from'] ?? '',
+      to: m['to'] ?? '',
+      days: m['days'] ?? 1,
+      travelers: m['travelers'] ?? 1,
+      budget: m['budget'] ?? '',
+      pace: m['pace'] ?? '',
+      diet: m['diet'] ?? '',
+      author: m['author'] ?? m['author_username'] ?? 'Unknown',
+      likes: m['likes'] ?? 0,
+      isPublic: m['is_public'] ?? false,
+      itinerary: Map<String, List<Map<String, dynamic>>>.from(m['itinerary'] ?? {}),
+      orderedWaypoints: [],
+      routePoints: [],
+      distanceKm: (m['distance_km'] is num) ? (m['distance_km'] as num).toDouble() : 0.0,
+      durationMinutes: (m['duration_minutes'] is num) ? (m['duration_minutes'] as num).toDouble() : 0.0,
+    );
+  }
 }

@@ -179,12 +179,6 @@ class _ItineraryEditScreenState extends State<ItineraryEditScreen> {
           'itinerary': _itinerary.itinerary,
           'workspace_id': _workspaceId,
         },
-        onNavigate: () {
-          // Handle navigation if needed
-        },
-        onEditApplied: (edits) {
-          _applyProposalEdit(edits);
-        },
       ),
     );
   }

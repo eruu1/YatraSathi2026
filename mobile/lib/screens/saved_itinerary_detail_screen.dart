@@ -349,11 +349,6 @@ class _SavedItineraryDetailScreenState
                 'distance_km': activeIt.distanceKm,
                 'duration_minutes': activeIt.durationMinutes,
               },
-              onEditApplied: (args) {
-                setState(() {
-                  // Refresh state on AI edit approval
-                });
-              },
             ),
           );
         },

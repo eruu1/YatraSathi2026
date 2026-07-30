@@ -5,7 +5,6 @@ import 'package:mobile/models/place.dart';
 import 'package:mobile/services/user_session.dart';
 import 'package:mobile/services/weather_service.dart';
 import 'package:mobile/widgets/weather_card.dart';
-import 'package:mobile/widgets/featured_trip_card.dart';
 import 'package:mobile/widgets/trending_list_tile.dart';
 import 'package:mobile/widgets/community_card.dart';
 
@@ -262,24 +261,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildWeatherAndFeatured(BuildContext context) {
-    return SizedBox(
-      height: 110,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        children: [
-          WeatherCard(
-            city: _weatherCity.toUpperCase(),
-            temp: _weatherTemp,
-            desc: _weatherDescription,
-            isLoading: _isWeatherLoading,
-          ),
-          const SizedBox(width: 12),
-          const FeaturedTripCard(
-            name: 'Annapurna Circuit',
-            subtitle: '2 days • 1 night',
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: WeatherCard(
+        city: _weatherCity.toUpperCase(),
+        temp: _weatherTemp,
+        desc: _weatherDescription,
+        isLoading: _isWeatherLoading,
       ),
     );
   }
@@ -313,17 +301,10 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 8),
         ...trending.map((place) => TrendingListTile(
               place: place,
-              onToggleSave: () => setState(() {
-                if (UserSession.savedPlaceIds
-                    .contains(place.id)) {
-                  UserSession.savedPlaceIds
-                      .remove(place.id);
-                } else {
-                  UserSession.savedPlaceIds
-                      .add(place.id);
-                }
-                UserSession.persist();
-              }),
+              onToggleSave: () async {
+                await UserSession.toggleSave(place);
+                if (mounted) setState(() {});
+              },
             )),
       ],
     );

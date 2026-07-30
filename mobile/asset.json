@@ -1,0 +1,279 @@
+{
+  "locations": [
+    {
+      "city": "Kathmandu",
+      "name": "Swayambhunath Stupa (Monkey Temple)",
+      "description": "One of Nepal's oldest and most sacred Buddhist stupas, situated on a hilltop overlooking Kathmandu Valley. Famous for its white dome, golden spire, and resident monkeys.",
+      "latitude": 27.7149,
+      "longitude": 85.2900,
+      "rating": 4.6,
+      "images": [
+        "asset_images/Swayambhunath Stupa/images.jpg",
+        "asset_images/Swayambhunath Stupa/image3.jpg",
+        "asset_images/Swayambhunath Stupa/swayambhunath-temple-kathmandu-nepal-ECYENF.jpg"
+      ]
+    },
+    {
+      "city": "Kathmandu",
+      "name": "Pashupatinath Temple",
+      "description": "Nepal's most important Hindu temple dedicated to Lord Shiva. Located on the banks of the Bagmati River and a UNESCO World Heritage Site.",
+      "latitude": 27.7104,
+      "longitude": 85.3488,
+      "rating": 4.7,
+      "images": [
+        "asset_images/Pashupatinath Temple/images.jpg",
+        "asset_images/Pashupatinath Temple/images (1).jpg",
+        "asset_images/Pashupatinath Temple/images (2).jpg"
+      ]
+    },
+    {
+      "city": "Kathmandu",
+      "name": "Boudhanath Stupa",
+      "description": "One of the largest spherical stupas in the world and the centre of Tibetan Buddhism in Nepal.",
+      "latitude": 27.7215,
+      "longitude": 85.3620,
+      "rating": 4.7,
+      "images": [
+        "asset_images/Boudhanath Stupa/images.jpg",
+        "asset_images/Boudhanath Stupa/images (1).jpg",
+        "asset_images/Boudhanath Stupa/images (2).jpg",
+        "asset_images/Boudhanath Stupa/images (3).jpg",
+        "asset_images/Boudhanath Stupa/images (4).jpg"
+      ]
+    },
+    {
+      "city": "Pokhara",
+      "name": "Phewa Lake",
+      "description": "Pokhara's iconic lake offering boating, lakeside dining, and reflections of the Annapurna mountain range.",
+      "latitude": 28.2096,
+      "longitude": 83.9596,
+      "rating": 4.7,
+      "images": [
+        "asset_images/Phewa Lake/images.jpg",
+        "asset_images/Phewa Lake/images (1).jpg",
+        "asset_images/Phewa Lake/images (2).jpg"
+      ]
+    },
+    {
+      "city": "Pokhara",
+      "name": "World Peace Pagoda",
+      "description": "A beautiful white Buddhist stupa located on a hilltop with panoramic views of Pokhara, Phewa Lake, and the Himalayas.",
+      "latitude": 28.2007,
+      "longitude": 83.9446,
+      "rating": 4.7,
+      "images": [
+        "asset_images/World Peace Pagoda/images.jpg",
+        "asset_images/World Peace Pagoda/stupa.jpg",
+        "asset_images/World Peace Pagoda/27821856562_126ed0afca_b.jpg"
+      ]
+    },
+    {
+      "city": "Pokhara",
+      "name": "Davis Falls",
+      "description": "A unique waterfall where water disappears into an underground tunnel. One of Pokhara's most visited attractions.",
+      "latitude": 28.1918,
+      "longitude": 83.9583,
+      "rating": 4.4,
+      "images": [
+        "asset_images/Davis Falls/images.jpg",
+        "asset_images/Davis Falls/images (1).jpg",
+        "asset_images/Davis Falls/download.jpg"
+      ]
+    },
+    {
+      "city": "Chitwan",
+      "name": "Chitwan National Park",
+      "description": "Nepal's first national park and a UNESCO World Heritage Site, famous for jungle safaris, one-horned rhinoceroses, elephants, and Bengal tigers.",
+      "latitude": 27.5341,
+      "longitude": 84.4525,
+      "rating": 4.7,
+      "images": [
+        "asset_images/Chitwan National Park/images.jpg",
+        "asset_images/Chitwan National Park/images (1).jpg",
+        "asset_images/Chitwan National Park/images (2).jpg"
+      ]
+    },
+    {
+      "city": "Chitwan",
+      "name": "Elephant Breeding Center",
+      "description": "A conservation and breeding facility where visitors can learn about Asian elephants and their care.",
+      "latitude": 27.5765,
+      "longitude": 84.4940,
+      "rating": 4.3,
+      "images": [
+        "asset_images/Elephant Breeding Center/images.jpg",
+        "asset_images/Elephant Breeding Center/images (1).jpg"
+      ]
+    },
+    {
+      "city": "Chitwan",
+      "name": "Rapti River Sunset Point",
+      "description": "Popular location for sunset viewing, canoe rides, birdwatching, and experiencing Chitwan's natural beauty.",
+      "latitude": 27.5800,
+      "longitude": 84.4960,
+      "rating": 4.6,
+      "images": [
+        "asset_images/Rapti River Sunset Point/images.jpg",
+        "asset_images/Rapti River Sunset Point/maxresdefault.jpg"
+      ]
+    },
+    {
+      "city": "Lumbini",
+      "name": "Maya Devi Temple",
+      "description": "The exact birthplace of Lord Buddha and the most sacred site in Lumbini.",
+      "latitude": 27.4837,
+      "longitude": 83.2767,
+      "rating": 4.7,
+      "images": [
+        "asset_images/Lumbini mayadevi temple/images.jpg",
+        "asset_images/Lumbini mayadevi temple/images (1).jpg",
+        "asset_images/Lumbini mayadevi temple/images (2).jpg"
+      ]
+    },
+    {
+      "city": "Lumbini",
+      "name": "Lumbini Sacred Garden",
+      "description": "A peaceful pilgrimage area containing monasteries, meditation zones, and historical Buddhist monuments.",
+      "latitude": 27.4840,
+      "longitude": 83.2760,
+      "rating": 4.7,
+      "images": [
+        "asset_images/Lumbini mayadevi temple/images.jpg",
+        "asset_images/Lumbini mayadevi temple/images (1).jpg"
+      ]
+    },
+    {
+      "city": "Lumbini",
+      "name": "World Peace Pagoda (Lumbini)",
+      "description": "A striking white pagoda symbolising global peace and harmony.",
+      "latitude": 27.4918,
+      "longitude": 83.2866,
+      "rating": 4.6,
+      "images": [
+        "asset_images/World Peace Pagoda/images.jpg",
+        "asset_images/World Peace Pagoda/stupa.jpg"
+      ]
+    },
+    {
+      "city": "Bhaktapur",
+      "name": "Bhaktapur Durbar Square",
+      "description": "A UNESCO World Heritage Site featuring medieval palaces, temples, courtyards, and traditional Newari architecture.",
+      "latitude": 27.6723,
+      "longitude": 85.4281,
+      "rating": 4.7,
+      "images": [
+        "asset_images/Bhaktapur Durbar Square/images.jpg",
+        "asset_images/Bhaktapur Durbar Square/images (1).jpg",
+        "asset_images/Bhaktapur Durbar Square/images (2).jpg"
+      ]
+    },
+    {
+      "city": "Bhaktapur",
+      "name": "Nyatapola Temple",
+      "description": "Nepal's tallest pagoda-style temple, renowned for its impressive five-tier architecture.",
+      "latitude": 27.6710,
+      "longitude": 85.4298,
+      "rating": 4.8,
+      "images": [
+        "asset_images/Nyatapola Temple/images.jpg",
+        "asset_images/Nyatapola Temple/images (1).jpg",
+        "asset_images/Nyatapola Temple/Nyatapola-Temple-.jpg"
+      ]
+    },
+    {
+      "city": "Bhaktapur",
+      "name": "55-Window Palace",
+      "description": "A masterpiece of traditional wood craftsmanship located within Bhaktapur Durbar Square.",
+      "latitude": 27.6726,
+      "longitude": 85.4285,
+      "rating": 4.6,
+      "images": [
+        "asset_images/55-Window Palace/images.jpg",
+        "asset_images/55-Window Palace/photo0jpg.jpg"
+      ]
+    },
+    {
+      "city": "Kathmandu",
+      "name": "Swayambhu Mahachaitya",
+      "description": "A hilltop sacred site anchored by a majestic white stupa painted with the Buddha's watchful eyes, surrounded by ancient shrines, prayer wheels, and resident holy monkeys.",
+      "latitude": 27.7149,
+      "longitude": 85.2904,
+      "rating": 4.6,
+      "images": [
+        "asset_images/Swayambhunath Stupa/images.jpg",
+        "asset_images/Swayambhunath Stupa/image3.jpg",
+        "asset_images/Swayambhunath Stupa/swayambhunath-temple-kathmandu-nepal-ECYENF.jpg"
+      ]
+    },
+    {
+      "city": "Nagarkot",
+      "name": "Nagarkot Sunrise View Park",
+      "description": "A high-altitude scenic viewpoint offering sweeping panoramas of major Himalayan peaks including Mount Everest on clear days, along with breathtaking sunrise and sunset views over the valley.",
+      "latitude": 27.6976,
+      "longitude": 85.5230,
+      "rating": 4.5,
+      "images": [
+        "asset_images/Swayambhunath Stupa/image3.jpg"
+      ]
+    },
+    {
+      "city": "Mustang Region",
+      "name": "Muktinath Temple, Nepal",
+      "description": "A revered mountain sanctuary featuring a central pagoda dedicated to Vishnu, surrounded by 108 sacred outdoor water spouts and natural gas fires burning alongside underground streams.",
+      "latitude": 28.8166,
+      "longitude": 83.8718,
+      "rating": 4.7,
+      "images": [
+        "asset_images/World Peace Pagoda/stupa.jpg"
+      ]
+    },
+    {
+      "city": "Everest (Khumbu) Region",
+      "name": "Namche Bazar",
+      "description": "A vibrant mountain town carved into a steep amphitheater-shaped hillside, lined with traditional Sherpa bakeries, outdoor equipment shops, cafes, and dramatic views of nearby snow-capped peaks.",
+      "latitude": 27.8069,
+      "longitude": 86.7140,
+      "rating": 4.6,
+      "images": [
+        "asset_images/Swayambhunath Stupa/image3.jpg"
+      ]
+    },
+    {
+      "city": "Tanahun District",
+      "name": "Bandipur",
+      "description": "A pedestrianized hilltop village with preserved 18th-century wooden townhouses, traditional stone-paved bazaar streets, and scenic overlooks facing the Annapurna mountain range.",
+      "latitude": 27.9388,
+      "longitude": 84.4172,
+      "rating": 4.6,
+      "images": [
+        "asset_images/bandipur/download.jpg",
+        "asset_images/bandipur/download (1).jpg"
+      ]
+    },
+    {
+      "city": "Janakpur",
+      "name": "Janaki Temple",
+      "description": "A magnificent 19th-century white temple built in an ornate Hindu-Islamic Mughal architectural style, featuring double-arched domes, stained glass windows, and grand courtyard shrines.",
+      "latitude": 26.7304,
+      "longitude": 85.9256,
+      "rating": 4.7,
+      "images": [
+        "asset_images/Janaki Temple/images.jpg",
+        "asset_images/Janaki Temple/images (1).jpg",
+        "asset_images/Janaki Temple/images (2).jpg"
+      ]
+    },
+    {
+      "city": "Langtang / Rasuwa Region",
+      "name": "Gosaikunda Lake",
+      "description": "A sacred high-altitude mountain lake surrounded by rugged alpine peaks, attracting both mountain trekkers and thousands of pilgrims during the Janai Purnima festival.",
+      "latitude": 28.0833,
+      "longitude": 85.4167,
+      "rating": 4.8,
+      "images": [
+        "asset_images/gosaikunda lake/images.jpg",
+        "asset_images/gosaikunda lake/images (1).jpg"
+      ]
+    }
+  ]
+}

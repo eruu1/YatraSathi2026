@@ -56,20 +56,80 @@ class PlaceService:
         limit: int = 50,
         offset: int = 0
     ) -> Dict[str, Any]:
-        """Search places by query string."""
+        """
+        Search places by query string.
+
+        Scoring tiers (higher = shown first):
+          3 — name starts with the query
+          2 — name contains the query anywhere
+          1 — category / semantic_tags / travel_styles / landscape / raw_tags district match
+          0 — everything else that matched (fallback)
+
+        Within each tier results are sorted by popularity (desc, nulls last).
+        """
         with SessionLocal() as db:
-            search_pattern = f"%{query}%"
-            base = db.query(Place).filter(
-                Place.name.ilike(search_pattern) | Place.category.ilike(search_pattern)
+            q = query.strip()
+            pattern  = f"%{q}%"
+            starts   = f"{q}%"
+
+            # ── 1. Name matches (tiers 3 and 2) ──────────────────────────────
+            name_starts   = db.query(Place).filter(Place.name.ilike(starts))
+            name_contains = db.query(Place).filter(
+                Place.name.ilike(pattern),
+                ~Place.name.ilike(starts)            # exclude already captured above
             )
-            total = base.count()
-            places = base.offset(offset).limit(limit).all()
+
+            # ── 2. Contextual matches (tier 1) ────────────────────────────────
+            # category, group, semantic_tags (jsonb array), travel_styles (jsonb array),
+            # landscape (jsonb array), district / city info stored in raw_tags
+            contextual = db.query(Place).filter(
+                ~Place.name.ilike(pattern),          # not already in name tiers
+                (
+                    Place.category.ilike(pattern) |
+                    Place.group.ilike(pattern) |
+                    Place.difficulty.ilike(pattern) |
+                    text(
+                        # Any element of the jsonb arrays contains the query (case-insensitive)
+                        f"EXISTS ("
+                        f"  SELECT 1 FROM jsonb_array_elements_text(COALESCE(semantic_tags, '[]'::jsonb)) t"
+                        f"  WHERE t ILIKE :pat"
+                        f") OR EXISTS ("
+                        f"  SELECT 1 FROM jsonb_array_elements_text(COALESCE(travel_styles, '[]'::jsonb)) t"
+                        f"  WHERE t ILIKE :pat"
+                        f") OR EXISTS ("
+                        f"  SELECT 1 FROM jsonb_array_elements_text(COALESCE(landscape, '[]'::jsonb)) t"
+                        f"  WHERE t ILIKE :pat"
+                        f") OR EXISTS ("
+                        f"  SELECT 1 FROM jsonb_array_elements_text(COALESCE(best_seasons, '[]'::jsonb)) t"
+                        f"  WHERE t ILIKE :pat"
+                        f") OR COALESCE(raw_tags->>'addr:district', '') ILIKE :pat"
+                        f"  OR COALESCE(raw_tags->>'addr:city', '') ILIKE :pat"
+                        f"  OR COALESCE(raw_tags->>'addr:province', '') ILIKE :pat"
+                        f"  OR COALESCE(raw_tags->>'description', '') ILIKE :pat"
+                        f"  OR COALESCE(raw_tags->>'wikidata_description', '') ILIKE :pat"
+                    ).bindparams(pat=pattern)
+                )
+            )
+
+            # ── 3. Rank and merge ─────────────────────────────────────────────
+            def _sort_key(p: Place):
+                pop = p.popularity if p.popularity is not None else 0.0
+                return pop   # within each tier, most popular first
+
+            tier3 = sorted(name_starts.all(),   key=_sort_key, reverse=True)
+            tier2 = sorted(name_contains.all(), key=_sort_key, reverse=True)
+            tier1 = sorted(contextual.all(),    key=_sort_key, reverse=True)
+
+            all_places = tier3 + tier2 + tier1
+            total = len(all_places)
+            page  = all_places[offset : offset + limit]
+
             return {
-                "places": [p.to_dict() for p in places],
-                "count": len(places),
+                "places": [p.to_dict() for p in page],
+                "count": len(page),
                 "total_count": total,
                 "offset": offset,
-                "limit": limit
+                "limit": limit,
             }
     
     def get_nearby_places(
